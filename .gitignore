@@ -30,6 +30,7 @@
 *.vcxproj
 *.vcxproj.filters
 *.sdf
+*.opensdf
 
 # Build results
 [Dd]ebug/
