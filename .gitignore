@@ -29,6 +29,7 @@
 *.sln
 *.vcxproj
 *.vcxproj.filters
+*.sdf
 
 # Build results
 [Dd]ebug/
