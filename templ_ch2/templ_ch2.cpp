@@ -5,6 +5,7 @@
 #include <memory>
 #include <array>
 #include <functional>
+#include <cstring>
 
 // as a rule of thumb you should always have all overloaded versions of a function declared before the function is called.
 
@@ -50,7 +51,7 @@ void specFoo1(const T& arg1, const T2& arg2, const T3& arg3) {
 template <typename RET, typename T1, typename T2>
 RET specFoo2(const T1& arg1, const T2& arg2) {
 	std::cout << "specFoo2: " << arg1 << ", " << arg2 << std::endl;
-	return T1 > T2 ? T1 : T2;
+	return arg1 > arg2 ? arg1 : arg2;
 }
 
 void partialFuncTempl() {
