@@ -13,3 +13,4 @@ add_subdirectory (ch10_1)
 
 add_subdirectory (templ_ch2)
 add_subdirectory (templ_ch3)
+add_subdirectory (templ_ch4)
