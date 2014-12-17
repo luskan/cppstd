@@ -62,6 +62,41 @@ public:
 
 // http://blog.llvm.org/2009/12/dreaded-two-phase-name-lookup.html
 
+
+//
+// 5.3 member templates
+
+template<typename T>
+class BulkDataCollection {
+public:
+	std::vector<T> data;
+
+	BulkDataCollection(std::initializer_list<T> const& rop) : data(rop) {}
+
+	void print() {
+		for (int i : data) {
+			std::cout << i << std::endl;
+		}
+	}
+
+	template<typename T2>
+	BulkDataCollection<T>& operator=(BulkDataCollection<T2> const& rop);
+};
+
+template<typename T>
+template<typename T2>
+BulkDataCollection<T>& BulkDataCollection<T>::operator = (BulkDataCollection<T2> const& rop) {
+	if (this == (void*)&rop)
+		return *this;
+
+	data.clear();
+	for (std::vector<T2>::const_iterator itr = rop.data.begin(); itr != rop.data.end(); ++itr) {
+		data.push_back(*itr);
+	}
+
+	return *this;
+}
+
 int main()
 {
 	//Derived<int> ad;
@@ -72,4 +107,11 @@ int main()
 
 	X<int> x;
 	std::cout << "type of a: " << typeid(x.a).name() << std::endl;
+
+	//
+	BulkDataCollection<int> intBulkData = { 0, 1, 2 };
+	BulkDataCollection<float> floatBulkData = { 0.2f, 1.3f, 0.4f };
+
+	intBulkData = floatBulkData;
+	intBulkData.print();
 }
