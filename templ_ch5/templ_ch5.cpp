@@ -5,10 +5,13 @@
 #include <memory>
 #include <array>
 #include <vector>
+#include <deque>
 #include <functional>
+#include <boost/timer.hpp>
+#include <cmath>
+#include <chrono>
 
-
-// 5.2
+// 5.2 Using this->
 
 template<typename T>
 class Base {
@@ -97,8 +100,85 @@ BulkDataCollection<T>& BulkDataCollection<T>::operator = (BulkDataCollection<T2>
 	return *this;
 }
 
+// 5.4 template template parameters
+
+template<class T> class myarray {};
+
+// two type template parameters and one template template parameter:
+template<class K, class V, template<typename, typename> class C = std::vector>
+C<K, std::allocator<K>> foo() {
+	C<K, std::allocator<K>> cont;
+	cont.push_back(0);
+};
+
+template<typename T>
+class BaseType {
+public:
+	void callMe(int n) {}
+};
+
+template<template<typename> class T>
+void func(int nn) {
+	T<int> foo;
+	foo.callMe(nn);
+}
+
+//5.5 zero init
+
+// if T is class, then it will be default initialized, but primitive types will not so below is hot to default init them.
+template<typename T>
+class FooClass {
+	T x;
+public:
+	FooClass() : 
+		 x() // init to 0/default, this will work even for built int types
+	{
+		T tt = T(); // init to 0/default
+	}
+};
+
+//5.6 Using string literals
+
+namespace std {
+
+	// disambiguates case when std::max is used for literals of different lengths.
+	template<typename T, int M, int N>
+	T const* max(T const (&a)[M], T const (&b)[N]) {
+		return a < b ? a : b;
+	}
+
+}
+
 int main()
 {
+	/* ()
+	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+// Example code for testing subnormal float efficency, not related to tempaltes:)
+float f = 2.0f;
+std::chrono::steady_clock::duration prevdiff;
+for (int k = 0; k < 10000; ++k) {
+	float sum = .0f;
+		
+	auto start = std::chrono::steady_clock::now();
+
+	for (int n = 0; n < 1e7; ++n) {
+		sum += f * 0.1f;
+	}
+
+	auto end = std::chrono::steady_clock::now();
+	auto diff = end - start;
+	std::cout << k << ", f=" << f << ", isnormal=" << std::isnormal(f)
+		<< ", elapsed=" << std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() << "ms" <<
+		", ratio=" << (prevdiff.count() == 0 ? 0 : (diff.count() / prevdiff.count())) << std::endl;
+	prevdiff = diff;
+
+	if (f < std::numeric_limits<float>::min())
+		break;
+
+	f /= 2.0f;
+}
+*/
+
 	//Derived<int> ad;
 	//ad.callMe();
 
@@ -114,4 +194,16 @@ int main()
 
 	intBulkData = floatBulkData;
 	intBulkData.print();
+
+	//5.4
+	func<BaseType>(1);
+
+	//5.5
+	FooClass<int> fc1;
+	FooClass<std::vector<int>> fc2;
+
+	//5.6
+	auto pair = std::make_pair("alpha", "alpha1");
+	std::max("al", "al1"); // error, different types. std::max is expecting bot arguments to be of same type, here they are
+		                   // of type char const[2] and char const[3]. Since std::max use T const&, literals does not decay to char const*
 }
