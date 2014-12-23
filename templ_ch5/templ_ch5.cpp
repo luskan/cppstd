@@ -28,7 +28,7 @@ public:
 		// as a rule of thumb, we recommend that you always qualify any symbol that is declared in a 
 		// base that is somehow dependent on a template parameter with this-> or Base<T>::.
 		//Base<T>::exit1();
-		exit1();
+		this->exit1();
 		//exit1(); // com
 	}
 
@@ -93,7 +93,7 @@ BulkDataCollection<T>& BulkDataCollection<T>::operator = (BulkDataCollection<T2>
 		return *this;
 
 	data.clear();
-	for (std::vector<T2>::const_iterator itr = rop.data.begin(); itr != rop.data.end(); ++itr) {
+	for (typename std::vector<T2>::const_iterator itr = rop.data.begin(); itr != rop.data.end(); ++itr) {
 		data.push_back(*itr);
 	}
 
