@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include <functional>
+#include <algorithm>
 
 // VAL - can be a pointer but it must be a pointer to object with external linkage.
 //       ie. string literals are objects with internal linkage (two string literals
@@ -47,8 +48,8 @@ int main()
 
 	const char* const literalName1 = "alabama";
 	const char* const literalName2 = "alabama";
-	std::cout << std::hex << (int)"alabama" << std::endl;
-	std::cout << std::hex << (int)"alabama" << std::endl;
-	std::cout << std::hex << (int)literalName1 << std::endl;
-	std::cout << std::hex << (int)literalName2 << std::endl;
+	std::cout << std::hex << (intptr_t)"alabama" << std::endl;
+	std::cout << std::hex << (intptr_t)"alabama" << std::endl;
+	std::cout << std::hex << (intptr_t)literalName1 << std::endl;
+	std::cout << std::hex << (intptr_t)literalName2 << std::endl;
 }
