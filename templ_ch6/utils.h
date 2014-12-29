@@ -13,6 +13,11 @@ void foo(T& str) {
 	std::cout << str << std::endl;
 }*/
 
-
+template<typename T>
+class ShowTypeInfoClass {
+public:
+	ShowTypeInfoClass();
+    ShowTypeInfoClass(int);
+};
 
 #endif
