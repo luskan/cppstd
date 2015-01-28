@@ -23,9 +23,9 @@ int main()
 	mm = 1;
 	foo("test2");
 
-	ShowTypeInfoClass<int> stic;
-	ShowTypeInfoClass<double> stic2;
-	ShowTypeInfoClass<long> stic3;
+		ShowTypeInfoClass<int> stic;
+		ShowTypeInfoClass<double> stic2;
+		ShowTypeInfoClass<long> stic3;
 }
 
 void fun(int, int) {

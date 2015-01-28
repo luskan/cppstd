@@ -26,7 +26,8 @@ ShowTypeInfoClass<T>::ShowTypeInfoClass() {
 extern template ShowTypeInfoClass<int>::ShowTypeInfoClass(int);
 
 // Explicit instantiation of whole cass for T=int
-template ShowTypeInfoClass < int > ;
+// interesting but VS allows to ommit class keywrd
+template class ShowTypeInfoClass < int > ;
 
 // Specialization of constructr for T=double
 template<> ShowTypeInfoClass<double>::ShowTypeInfoClass() {

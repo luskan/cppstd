@@ -14,11 +14,13 @@
 #include <map>
 
 // Below code should not compile, but it does under VS
+#if !defined(__GNUC__)
 int X2;
 template<typename T>
 class X2 {
 	
 };
+#endif
 
 // 8.2.1 Type Parameters
 template<typename T>
@@ -92,7 +94,9 @@ void foo1(int a = 0, int b = 1);
 void foo1(int a, int b); // ok!
 
 template<class T = int> class X3;
+#if !defined(__GNUC__)
 template<class T = int> class X3 {};
+#endif
 
 // SO test for 
 // http://stackoverflow.com/questions/9787593/c-implicit-type-conversion-with-template
