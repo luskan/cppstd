@@ -297,7 +297,38 @@ public:
 	}
 };
 
+// 8.4.1 Friend functions
+
+template<typename T>
+void fooFriend(T t){
+
+}
+
+void fooFriend(long l){}
+
+//class TestFriends {
+//public:
+//	friend void ::fooFriend(long){}
+//};
+#include <functional>
+short int A()
+{
+	return 0;
+}
+
+long int B()
+{
+	return 0;
+}
 int main()  {
+
+	std::function<short int()> f = A;
+	f();
+	if (true)
+	{
+		//error
+		f = B;
+	}
 
 	/*
 	func(1);
