@@ -121,7 +121,7 @@ public:
 	int basefield2;
 };
 
-template <typename T,typename R = std::conditional<sizeof(T) == 4, char, short>::type>
+template <typename T,typename R = typename std::conditional<sizeof(T) == 4, char, short>::type>
 R foo(T bar){ return R(0); }
 
 int main()
