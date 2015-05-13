@@ -16,4 +16,4 @@ file(GLOB templ_ch12_SRC
     "*.cpp"
 )
 
-add_executable(templ_ch12 templ_ch12.cpp)
+add_executable(templ_ch12 ${templ_ch12_SRC})
