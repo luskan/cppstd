@@ -6,12 +6,14 @@
 
 #include "templ.h"
 
+extern void CallGrade();
+
 int main()
 {
 	MyGrade<int> grade;
 	int nn = grade.value;
 	std::cout << "From templ_ch12.cpp:: " << nn << std::endl;
 
-	extern void CallGrade();
+
 	CallGrade();
 }
