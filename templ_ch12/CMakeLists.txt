@@ -11,5 +11,9 @@ IF (Boost_FOUND)
     ADD_DEFINITIONS( "-DHAS_BOOST" )
 ENDIF()
 
+file(GLOB templ_ch12_SRC
+    "*.h"
+    "*.cpp"
+)
 
 add_executable(templ_ch12 templ_ch12.cpp)
