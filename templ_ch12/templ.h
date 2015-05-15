@@ -11,13 +11,15 @@ class CallCtr {
 public:
 	CallCtr() {
 		std::cout << "CallCtr::CallCtr()" << std::endl;
+		value = 17;
 	}
 	void callMe() {
-		std::cout << "CallCtr::callMe" << std::endl;
+		std::cout << "CallCtr::callMe: " << value << std::endl;
 	}
 
 private:
 	CallCtr(CallCtr const&);
+	int value;
 };
 
 template<typename T>
