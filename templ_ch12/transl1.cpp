@@ -3,8 +3,8 @@
 
 // under vs2013 default ctor gets caed
 // under gcc5.1.0 no ctor gets called, its nondefining
-template<>
-CallCtr CallHolder<CallCtr>::tt;
+template<typename T>
+T CallHolder<T>::tt;
 
 void CallGrade()
 {
