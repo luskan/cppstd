@@ -1,15 +1,10 @@
 #if !defined(TEMPL_H)
 #define TEMPL_H
 
-template<typename T>
-struct MyGrade {
-	const int value = 10;
-};
-
 // For 12.3.3
 class CallCtr {
 public:
-	CallCtr(int n) {
+	CallCtr() {
 		std::cout << "CallCtr::CallCtr()" << std::endl;
 		value = 17;
 	}
@@ -27,8 +22,4 @@ class CallHolder {
 public:
 	static T tt;
 };
-
-//template<>
-//CallCtr CallHolder<CallCtr>::tt;
-
 #endif
