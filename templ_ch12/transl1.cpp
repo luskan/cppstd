@@ -8,6 +8,9 @@ struct MyGrade<int> {
 	const int value = 11;
 };
 
+template<>
+CallCtr CallHolder<CallCtr>::tt;
+
 void CallGrade()
 {
 	MyGrade<int> grade;

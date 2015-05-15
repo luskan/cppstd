@@ -28,7 +28,7 @@ public:
 	static T tt;
 };
 
-template<>
-CallCtr CallHolder<CallCtr>::tt;
+//template<>
+//CallCtr CallHolder<CallCtr>::tt;
 
 #endif
