@@ -2,7 +2,7 @@
 #include "templ.h"
 
 template<>
-CallCtr CallHolder<CallCtr>::tt; // under gcc its nondefining
+CallCtr CallHolder<CallCtr>::tt(1); // under gcc its nondefining
 
 void CallGrade()
 {
