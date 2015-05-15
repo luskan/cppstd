@@ -9,7 +9,7 @@ struct MyGrade {
 // For 12.3.3
 class CallCtr {
 public:
-	CallCtr() {
+	CallCtr(int n) {
 		std::cout << "CallCtr::CallCtr()" << std::endl;
 		value = 17;
 	}

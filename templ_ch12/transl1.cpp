@@ -9,7 +9,7 @@ struct MyGrade<int> {
 };
 
 template<>
-CallCtr CallHolder<CallCtr>::tt;
+CallCtr CallHolder<CallCtr>::tt(12);
 
 void CallGrade()
 {
