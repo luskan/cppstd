@@ -13,6 +13,10 @@ public:
 	CallCtr() {
 		std::cout << "CallCtr::CallCtr()" << std::endl;
 	}
+  void callMe() {
+    std::cout << "CallCtr::callMe" << std::endl;
+  }
+
 private:
 	CallCtr(CallCtr const&);
 };
@@ -36,4 +40,5 @@ int main()
 
 	// 12.3.3 Full Member Specialization
 	CallHolder<CallCtr> test;
+	test.tt.callMe();
 }
