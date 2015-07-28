@@ -21,3 +21,5 @@ add_subdirectory (templ_ch9)
 add_subdirectory (templ_ch10)
 add_subdirectory (templ_ch12)
 add_subdirectory (templ_ch13)
+
+add_subdirectory (pplvs_ch2)
