@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (pplvs_ch2)
+project (pplvs_ch3)
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
@@ -11,11 +11,11 @@ IF (Boost_FOUND)
     ADD_DEFINITIONS( "-DHAS_BOOST" )
 ENDIF()
 
-file(GLOB pplvs_ch2_SRC
+file(GLOB pplvs_ch3_SRC
     "*.h"
     "*.cpp"
-	"../common/*.h"
-	"../common/*.cpp"
+	"../common/ppl_common.h"
+	"../common/ppl_common.cpp"
 )
 
-add_executable(pplvs_ch2 ${pplvs_ch2_SRC})
+add_executable(pplvs_ch3 ${pplvs_ch3_SRC})

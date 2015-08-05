@@ -4,7 +4,6 @@
 #include <ppl.h>
 #include <concrtrm.h>
 #include <windows.h>
-#include <crtdbg.h>
 #include "../common/ppl_common.h"
 
 void example1() {
