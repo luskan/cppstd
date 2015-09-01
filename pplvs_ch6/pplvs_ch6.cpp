@@ -54,6 +54,33 @@ void ParallelWalkTree(std::shared_ptr<TreeNode<T>> root, F f) {
   );
 }
 
+template<typename T, typename F>
+void ParallelSubtreeHandler(Concurrency::task_group& tg, std::shared_ptr<TreeNode<T>> node, F f) {
+  if (node == nullptr)
+    return;
+
+  if (node->left != nullptr) {
+    tg.run([&tg, node, f]() {
+      ParallelSubtreeHandler(tg, node->left, f);
+    });
+  }
+
+  if (node->right != nullptr) {
+    tg.run([&tg, node, f]() {
+      ParallelSubtreeHandler(tg, node->right, f);
+    });
+  }
+
+  f(node);
+}
+
+template<typename T, typename F>
+void ParallelSubtreeProcess(std::shared_ptr<TreeNode<T>> node, F f) {
+  Concurrency::task_group tg;
+  ParallelSubtreeHandler(tg, node, f);
+  tg.wait();
+}
+
 auto BuildTree(int depth) {
   std::atomic<int> count(0);
   auto root = std::make_shared<TreeNode<int>>();
@@ -198,6 +225,12 @@ void example5() {
   ParallelQuickSort(av, 5);
 }
 
+void example6(std::shared_ptr<TreeNode<int>> root) {
+  std::atomic<unsigned long long> sum(0);
+  ParallelSubtreeProcess(root, [&](std::shared_ptr<TreeNode<int>> node) { sum += 1; });
+  std::cout << "Walked (tg) depth: " << sum.load() << std::endl;
+}
+
 /*
 #include <vector>
 #include <iostream>
@@ -244,6 +277,7 @@ int main() {
   auto root = BuildTree(17);
   TimedRun([&]() {example1(root);}, "example1() - sequential tree walk");
   TimedRun([&]() {example2(root);}, "example2() - parallel tree walk");
+  TimedRun([&]() {example6(root);}, "example6() - parallel tree walk (tg)");
   //TimedRun([&]() {example3(root);}, "example2() - parallel tree walk");
   TimedRun([&]() {example4();}, "example4() - sequential sort");
   TimedRun([&]() {example5();}, "example5() - parallel sort");

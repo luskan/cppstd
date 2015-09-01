@@ -4,71 +4,149 @@
 #include <ppl.h>
 #include <concrtrm.h>
 #include <windows.h>
+#include <sstream>
+#include <fstream>
 #include <algorithm>
+#include <string>
 #include <numeric>
 #include "../common/ppl_common.h"
+#include "PipelineGovernor.h"
 
 #if _MSC_PLATFORM_TOOLSET <= 120
 #include "../common/ppl_extras.h"
 #endif
 
-void example1() {
-	std::vector<int> vec(1000);
-	for (int n = 0; n < vec.size(); ++n)
-		vec[n] = n;
-	
-	Concurrency::combinable<int> count([]() {return 0;});
-	Concurrency::parallel_for_each(vec.cbegin(), vec.cend(), [&count, &vec](int i) {
-		count.local() += isprime(vec[i]) ? 1 : 0;
-	});
+#define MAX_PRIMES 10000
 
-	std::cout << count.combine(std::plus<int>()) << std::endl;
-}
+class ParseToInt : public Concurrency::agent {
+  Concurrency::unbounded_buffer<std::shared_ptr<std::string>>& indata;
+  Concurrency::unbounded_buffer<int>& outdata;
+public:
 
-void example2() {
-	std::vector<int> vec(10000);
-	for (int n = 0; n < vec.size(); ++n)
-		vec[n] = n;
+  ParseToInt(Concurrency::unbounded_buffer<std::shared_ptr<std::string>>& in, Concurrency::unbounded_buffer<int>& out) : indata(in), outdata(out) {}
 
-	int total = std::accumulate(vec.cbegin(), vec.cend(), 0, [](int total, int element) { return total + isprime(element)?1:0; });
+  void run() {
 
-	std::cout << total << std::endl;
-}
-
-struct CountPrimes
-{
-	int operator()(std::vector<int>::const_iterator beg, std::vector<int>::const_iterator end, int right) const {
-		return right + std::accumulate(beg, end, 0, [](int total, int element) { return total + isprime(element) ? 1 : 0; });
-	}
+    while (true) {
+      auto str = Concurrency::receive(indata);  
+      if (str->empty()) {
+        Concurrency::asend(outdata, -1);
+        break;
+      }
+      int num = std::stoi(*str);
+      if (num == -1) {
+        Concurrency::asend(outdata, -1);
+        break;
+      }
+      Concurrency::asend(outdata, num);
+    }
+    done();
+  }
 };
 
-void example3() {
-	std::vector<int> vec(10000);
-	for (int n = 0; n < vec.size(); ++n)
-		vec[n] = n;
+class CheckIfPrime : public Concurrency::agent {
+  Concurrency::unbounded_buffer<int>& indata;
+  Concurrency::unbounded_buffer<std::shared_ptr<std::string>>& outdata;
+public:
 
-	// Below code does not compile wit
-	
-#if _MSC_PLATFORM_TOOLSET <= 120
-	using namespace ::Concurrency::samples;
-#else
-	using namespace ::Concurrency;
-#endif
-	int total = parallel_reduce(vec.cbegin(), vec.cend(), 0,
-		
-		//CountPrimes(), 
-		[](std::vector<int>::const_iterator beg, std::vector<int>::const_iterator end, int right) -> int { 
-			return right + std::accumulate(beg, end, 0, [](int total, int element) { return total + isprime(element) ? 1 : 0; });
-		},
-		
-		std::plus<int>()
-	);
-	std::cout << total << std::endl;
+  CheckIfPrime(Concurrency::unbounded_buffer<int>& in, Concurrency::unbounded_buffer<std::shared_ptr<std::string>>& out) : indata(in), outdata(out) {}
+
+  void run() {
+
+    while (true) {
+      auto num = Concurrency::receive(indata);
+      if (num == -1) {
+        Concurrency::asend(outdata, std::make_shared<std::string>(""));
+        break;
+      }
+      bool isPrime = isprime(num);
+      if (isPrime) {
+        std::stringstream str;
+        str << "Value: " << num << " isPrime";
+        Concurrency::asend(outdata, std::make_shared<std::string>(str.str()));
+      }
+      else {
+        Concurrency::asend(outdata, std::make_shared<std::string>("ignore"));
+      }
+    }
+    done();
+  }
+};
+
+class WriteToFile : public Concurrency::agent {
+  Concurrency::unbounded_buffer<std::shared_ptr<std::string>>& indata;
+  PipelineUtilities::PipelineGovernor& gov;
+public:
+
+  WriteToFile(Concurrency::unbounded_buffer<std::shared_ptr<std::string>>& in, PipelineUtilities::PipelineGovernor& g) : indata(in), gov(g) {}
+
+  void run() {
+
+    std::ofstream fout("primes.txt");
+    while (true) {
+      auto str = Concurrency::receive(indata);
+      if (str->empty()) {
+        break;
+      }
+      if (*str != "ignore") {
+        fout << *str << "\r\n";
+        fout.flush();
+      }
+      gov.FreePipelineSlot();
+      
+    }
+    fout.close();
+    done();
+  }
+};
+
+void example2() {
+  std::ofstream fout("primes.txt");
+  for (int k = 0; k < MAX_PRIMES; ++k) {
+    std::string str(std::to_string(k));
+    int num = std::stoi(str);
+    bool isPrime = isprime(num);
+    if (isPrime) {
+      std::stringstream str;
+      str << "Value: " << num << " isPrime";
+      fout << str.str() << "\r\n";
+      fout.flush();
+    }
+  }
+  fout.close();
+}
+
+void example1() {
+  Concurrency::unbounded_buffer<std::shared_ptr<std::string>> buffer1;
+  Concurrency::unbounded_buffer<int> buffer2;
+  Concurrency::unbounded_buffer<std::shared_ptr<std::string>> buffer3;
+
+  PipelineUtilities::PipelineGovernor gov(5);
+
+  ParseToInt parseToIntAgent(buffer1, buffer2);
+  CheckIfPrime checkIfPrimeAgent(buffer2, buffer3);
+  WriteToFile writeToFileAgent(buffer3, gov);
+  
+  parseToIntAgent.start();
+  checkIfPrimeAgent.start();
+  writeToFileAgent.start();
+
+  Concurrency::task_group tg;
+  tg.run(
+    [&]() {
+    for (int k = 0; k <= MAX_PRIMES; ++k) {
+      gov.WaitForAvailablePipelineSlot();
+      Concurrency::asend(buffer1, std::make_shared<std::string>(std::to_string(k== MAX_PRIMES ?-1:k)));
+    }
+  });
+
+  gov.WaitForEmptyPipeline();
+  Concurrency::agent* agents[3] = {&parseToIntAgent, &checkIfPrimeAgent, &writeToFileAgent};
+  Concurrency::agent::wait_for_all(3, agents);
 }
 
 int main() {
-	TimedRun(example1, "example1() - Parallel Aggregation pattern");
-	TimedRun(example2, "example2() - Sequential Aggregation - accumulate");
-	TimedRun(example3, "example3() - Sequential Aggregation - accumulate in reduce");
+	TimedRun(example1, "example1() - pipeline");
+  TimedRun(example2, "example2() - seq pipeline");
 	getchar();
 }
